@@ -2,7 +2,6 @@ package siege.common;
 
 import java.io.*;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.DimensionManager;
@@ -21,7 +20,7 @@ public class SiegeMode
 	public static SiegeMode instance;
 	
 	private EventHandler eventHandler;
-	
+
 	@Mod.EventHandler
 	public void load(FMLInitializationEvent event)
 	{
@@ -29,7 +28,7 @@ public class SiegeMode
 		FMLCommonHandler.instance().bus().register(eventHandler);
 		MinecraftForge.EVENT_BUS.register(eventHandler);
 	}
-	
+
 	@Mod.EventHandler
 	public void onServerStarting(FMLServerStartingEvent event)
 	{
@@ -39,12 +38,12 @@ public class SiegeMode
 		event.registerServerCommand(new CommandSiegeSetup());
 		event.registerServerCommand(new CommandSiegePlay());
 	}
-	
+
 	public static File getSiegeRootDirectory()
 	{
 		return new File(DimensionManager.getCurrentSaveRootDirectory(), "siegemode");
 	}
-	
+
 	public static NBTTagCompound loadNBTFromFile(File file) throws FileNotFoundException, IOException
 	{
 		if (file.exists())
@@ -56,7 +55,7 @@ public class SiegeMode
 			return new NBTTagCompound();
 		}
 	}
-	
+
 	public static void saveNBTToFile(File file, NBTTagCompound nbt) throws FileNotFoundException, IOException
 	{
 		CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(file));
