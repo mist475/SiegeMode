@@ -196,20 +196,6 @@ public class Siege
 		return data;
 	}
 	
-	public List<String> listAllPlayerNames()
-	{
-		List<String> names = new ArrayList<>();
-		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (EntityPlayerMP entityplayer : playerList)
-		{
-			if (hasPlayer(entityplayer))
-			{
-				names.add(entityplayer.getCommandSenderName());
-			}
-		}
-		return names;
-	}
-	
 	public int getMaxTeamDifference()
 	{
 		return maxTeamDifference;
@@ -219,11 +205,6 @@ public class Siege
 	{
 		maxTeamDifference = d;
 		markDirty();
-	}
-	
-	public int getRespawnImmunity()
-	{
-		return respawnImmunity;
 	}
 	
 	public void setRespawnImmunity(int seconds)
