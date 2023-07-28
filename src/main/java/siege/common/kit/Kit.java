@@ -3,6 +3,7 @@ package siege.common.kit;
 import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -123,7 +124,14 @@ public class Kit
 	public static void clearPlayerInvAndKit(EntityPlayer entityplayer)
 	{
 		entityplayer.inventory.clearInventory(null, -1);
+		//Ensure the crafting grid also gets cleared
+		clearContainer(entityplayer.inventoryContainer);
 		entityplayer.clearActivePotions();
+	}
+
+	public static void clearContainer(Container container) {
+		container.inventoryItemStacks.clear();
+		container.detectAndSendChanges();
 	}
 	
 	public void markDirty()
