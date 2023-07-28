@@ -44,7 +44,7 @@ public class SiegeMode
 		return new File(DimensionManager.getCurrentSaveRootDirectory(), "siegemode");
 	}
 
-	public static NBTTagCompound loadNBTFromFile(File file) throws FileNotFoundException, IOException
+	public static NBTTagCompound loadNBTFromFile(File file) throws IOException
 	{
 		if (file.exists())
 		{
@@ -56,7 +56,7 @@ public class SiegeMode
 		}
 	}
 
-	public static void saveNBTToFile(File file, NBTTagCompound nbt) throws FileNotFoundException, IOException
+	public static void saveNBTToFile(File file, NBTTagCompound nbt) throws IOException
 	{
 		CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(file));
 	}

@@ -40,10 +40,9 @@ public class Siege
 	
 	private int ticksRemaining = 0;
 	private static final int SCORE_INTERVAL = 30 * 20;
-	private boolean announceActive = true;
 	private static final int ANNOUNCE_ACTIVE_INTERVAL = 60 * 20;
 	
-	private List<SiegeTeam> siegeTeams = new ArrayList();
+	private final List<SiegeTeam> siegeTeams = new ArrayList<>();
 	private int maxTeamDifference = 3;
 	private boolean friendlyFire = false;
 	private boolean mobSpawning = false;
@@ -51,7 +50,7 @@ public class Siege
 	private boolean terrainProtectInactive = false;
 	private boolean dispelOnEnd = false;
 	
-	private Map<UUID, SiegePlayerData> playerDataMap = new HashMap();
+	private final Map<UUID, SiegePlayerData> playerDataMap = new HashMap<>();
 	private static final int KILLSTREAK_ANNOUNCE = 3;
 	private int respawnImmunity = 5;
 	
@@ -94,6 +93,7 @@ public class Siege
 	
 	public boolean isLocationInSiege(double x, double y, double z)
 	{
+		//TODO: y-usage?
 		double dx = x - (xPos + 0.5D);
 		double dz = z - (zPos + 0.5D);
 		double dSq = dx * dx + dz * dz;
@@ -134,7 +134,7 @@ public class Siege
 	
 	public List<String> listTeamNames()
 	{
-		List<String> names = new ArrayList();
+		List<String> names = new ArrayList<>();
 		for (SiegeTeam team : siegeTeams)
 		{
 			names.add(team.getTeamName());
@@ -198,11 +198,10 @@ public class Siege
 	
 	public List<String> listAllPlayerNames()
 	{
-		List<String> names = new ArrayList();
-		List playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (Object player : playerList)
+		List<String> names = new ArrayList<>();
+		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (EntityPlayerMP entityplayer : playerList)
 		{
-			EntityPlayer entityplayer = (EntityPlayer)player;
 			if (hasPlayer(entityplayer))
 			{
 				names.add(entityplayer.getCommandSenderName());
@@ -276,12 +275,7 @@ public class Siege
 		terrainProtectInactive = flag;
 		markDirty();
 	}
-	
-	public boolean getDispelEnd()
-	{
-		return dispelOnEnd;
-	}
-	
+
 	public void setDispelOnEnd(boolean flag)
 	{
 		dispelOnEnd = flag;
@@ -336,11 +330,8 @@ public class Siege
         {
         	sSeconds = "0" + sSeconds;
         }
-        
-        String sMinutes = String.valueOf(minutes);
-        
-        String timeDisplay = sMinutes + ":" + sSeconds;
-        return timeDisplay;
+
+        return minutes + ":" + sSeconds;
 	}
 	
 	public void endSiege()
@@ -349,7 +340,7 @@ public class Siege
 
 		announceToAllPlayers("The siege has ended!");
 		
-		List<SiegeTeam> winningTeams = new ArrayList();
+		List<SiegeTeam> winningTeams = new ArrayList<>();
 		int winningScore = -1;
 		for (SiegeTeam team : siegeTeams)
 		{
@@ -365,23 +356,23 @@ public class Siege
 				winningTeams.add(team);
 			}
 		}
-		String winningTeamName = "";
+		StringBuilder winningTeamName = new StringBuilder();
 		if (!winningTeams.isEmpty())
 		{
 			if (winningTeams.size() == 1)
 			{
 				SiegeTeam team = winningTeams.get(0);
-				winningTeamName = team.getTeamName();
+				winningTeamName = new StringBuilder(team.getTeamName());
 			}
 			else
 			{
 				for (SiegeTeam team : winningTeams)
 				{
-					if (!winningTeamName.isEmpty())
+					if (winningTeamName.length() > 0)
 					{
-						winningTeamName += ", ";
+						winningTeamName.append(", ");
 					}
-					winningTeamName += team.getTeamName();
+					winningTeamName.append(team.getTeamName());
 				}
 			}
 		}
@@ -446,10 +437,9 @@ public class Siege
 		}
 		announceToAllPlayers("---");
 		
-		List playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (Object player : playerList)
+		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (EntityPlayerMP entityplayer : playerList)
 		{
-			EntityPlayerMP entityplayer = (EntityPlayerMP)player;
 			if (hasPlayer(entityplayer))
 			{
 				SiegePlayerData playerData = getPlayerData(entityplayer);
@@ -471,8 +461,7 @@ public class Siege
 				if (mostKilled != null && mostKilled.equals(mostKilledBy))
 				{
 					announcePlayer(entityplayer, "Your nemesis was " + mostKilled + "...");
-					flag = true;
-				}
+                }
 				
 				if (flag)
 				{
@@ -483,9 +472,8 @@ public class Siege
 		
 		announceToAllPlayers("Congratulations to " + winningTeamName + ", and well played by all!");
 		
-		for (Object player : playerList)
+		for (EntityPlayerMP entityplayer : playerList)
 		{
-			EntityPlayerMP entityplayer = (EntityPlayerMP)player;
 			if (hasPlayer(entityplayer))
 			{
 				leavePlayer(entityplayer, false);
@@ -522,13 +510,13 @@ public class Siege
 			}
 			else
 			{
-				if (announceActive && ticksRemaining % ANNOUNCE_ACTIVE_INTERVAL == 0)
+				if (ticksRemaining % ANNOUNCE_ACTIVE_INTERVAL == 0)
 				{
 					announceActiveSiege();
 				}
 				
-				List playerList = world.playerEntities;
-				for (Object player : playerList)
+				List<EntityPlayer> playerList = world.playerEntities;
+				for (EntityPlayer player : playerList)
 				{
 					EntityPlayerMP entityplayer = (EntityPlayerMP)player;
 					boolean inSiege = hasPlayer(entityplayer);
@@ -537,29 +525,18 @@ public class Siege
 				
 				if (ticksRemaining % SCORE_INTERVAL == 0)
 				{
-					List<SiegeTeam> teamsSorted = new ArrayList();
-					teamsSorted.addAll(siegeTeams);
-					Collections.sort(teamsSorted, new Comparator<SiegeTeam>()
-					{
-						@Override
-						public int compare(SiegeTeam team1, SiegeTeam team2)
-						{
-							int score1 = team1.getTeamKills();
-							int score2 = team2.getTeamKills();
-							if (score1 > score2)
-							{
-								return -1;
-							}
-							else if (score1 < score2)
-							{
-								return 1;
-							}
-							else
-							{
-								return team1.getTeamName().compareTo(team2.getTeamName());
-							}
-						}
-					});
+                    List<SiegeTeam> teamsSorted = new ArrayList<>(siegeTeams);
+					teamsSorted.sort((team1, team2) -> {
+                        int score1 = team1.getTeamKills();
+                        int score2 = team2.getTeamKills();
+                        if (score1 > score2) {
+                            return -1;
+                        } else if (score1 < score2) {
+                            return 1;
+                        } else {
+                            return team1.getTeamName().compareTo(team2.getTeamName());
+                        }
+                    });
 					
 					for (SiegeTeam team : teamsSorted)
 					{
@@ -578,16 +555,13 @@ public class Siege
 	public boolean joinPlayer(EntityPlayer entityplayer, SiegeTeam team, Kit kit)
 	{
 		boolean hasAnyItems = false;
-		checkForItems:
-		for (int i = 0; i < entityplayer.inventory.getSizeInventory(); i++)
-		{
-			ItemStack itemstack = entityplayer.inventory.getStackInSlot(i);
-			if (itemstack != null)
-			{
-				hasAnyItems = true;
-				break checkForItems;
-			}
-		}
+        for (int i = 0; i < entityplayer.inventory.getSizeInventory(); i++) {
+            ItemStack itemstack = entityplayer.inventory.getStackInSlot(i);
+            if (itemstack != null) {
+                hasAnyItems = true;
+                break;
+            }
+        }
 		
 		if (hasAnyItems)
 		{
@@ -661,10 +635,9 @@ public class Siege
 	
 	private void messageAllPlayers(String text, EnumChatFormatting color, boolean onlyInSiege)
 	{
-		List playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (Object player : playerList)
+		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (EntityPlayerMP entityplayer : playerList)
 		{
-			EntityPlayer entityplayer = (EntityPlayer)player;
 			if (!onlyInSiege || hasPlayer(entityplayer))
 			{
 				messagePlayer(entityplayer, text, color);
@@ -683,7 +656,6 @@ public class Siege
 	{
 		World world = entityplayer.worldObj;
 		SiegePlayerData playerData = getPlayerData(entityplayer);
-		SiegeTeam team = getPlayerTeam(entityplayer);
 		
 		if (!entityplayer.capabilities.isCreativeMode)
 		{
@@ -1050,13 +1022,10 @@ public class Siege
 			{
 				NBTTagCompound playerData = playerTags.getCompoundTagAt(i);
 				UUID playerID = UUID.fromString(playerData.getString("PlayerID"));
-				if (playerID != null)
-				{
-					SiegePlayerData player = new SiegePlayerData(this);
-					player.readFromNBT(playerData);
-					playerDataMap.put(playerID, player);
-				}
-			}
+                SiegePlayerData player = new SiegePlayerData(this);
+                player.readFromNBT(playerData);
+                playerDataMap.put(playerID, player);
+            }
 		}
 	}
 }

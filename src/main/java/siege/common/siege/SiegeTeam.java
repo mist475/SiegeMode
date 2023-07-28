@@ -3,6 +3,7 @@ package siege.common.siege;
 import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChunkCoordinates;
@@ -15,9 +16,9 @@ public class SiegeTeam
 {
 	private Siege theSiege;
 	private String teamName;
-	private List<UUID> teamPlayers = new ArrayList();
-	private List<UUID> teamKits = new ArrayList();
-	private Map<UUID, Integer> teamKitLimits = new HashMap();
+	private final List<UUID> teamPlayers = new ArrayList<>();
+	private final List<UUID> teamKits = new ArrayList<>();
+	private final Map<UUID, Integer> teamKitLimits = new HashMap<>();
 	
 	private int respawnX;
 	private int respawnY;
@@ -71,11 +72,10 @@ public class SiegeTeam
 	public int onlinePlayerCount()
 	{
 		int i = 0;
-		List playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (Object player : playerList)
+		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (EntityPlayerMP player : playerList)
 		{
-			EntityPlayer entityplayer = (EntityPlayer)player;
-			if (containsPlayer(entityplayer))
+            if (containsPlayer(player))
 			{
 				i++;
 			}
@@ -83,17 +83,12 @@ public class SiegeTeam
 		return i;
 	}
 	
-	public boolean canPlayerJoin(EntityPlayer entityplayer)
+	public boolean canPlayerJoin()
 	{
 		int count = onlinePlayerCount();
 		int lowestCount = theSiege.getSmallestTeamSize();
-		if (count - lowestCount >= theSiege.getMaxTeamDifference())
-		{
-			return false;
-		}
-		
-		return true;
-	}
+        return count - lowestCount < theSiege.getMaxTeamDifference();
+    }
 	
 	public void joinPlayer(EntityPlayer entityplayer)
 	{
@@ -123,7 +118,7 @@ public class SiegeTeam
 	
 	public Kit getRandomKit(Random random)
 	{
-		List<Kit> availableKits = new ArrayList();
+		List<Kit> availableKits = new ArrayList<>();
 		for (UUID kitID : teamKits)
 		{
 			Kit kit = KitDatabase.getKit(kitID);
@@ -137,9 +132,8 @@ public class SiegeTeam
 		{
 			return null;
 		}
-		
-		Kit kit = availableKits.get(random.nextInt(availableKits.size()));
-		return kit;
+
+        return availableKits.get(random.nextInt(availableKits.size()));
 	}
 	
 	public boolean containsKit(Kit kit)
@@ -192,10 +186,7 @@ public class SiegeTeam
 		{
 			int limit = getKitLimit(kit);
 			int using = countPlayersUsingKit(kit);
-			if (using >= limit)
-			{
-				return false;
-			}
+            return using < limit;
 		}
 		return true;
 	}
@@ -217,7 +208,7 @@ public class SiegeTeam
 	
 	public List<String> listKitNames()
 	{
-		List<String> names = new ArrayList();
+		List<String> names = new ArrayList<>();
 		for (UUID kitID : teamKits)
 		{
 			Kit kit = KitDatabase.getKit(kitID);
@@ -363,11 +354,8 @@ public class SiegeTeam
 			for (int i = 0; i < playerTags.tagCount(); i++)
 			{
 				UUID player = UUID.fromString(playerTags.getStringTagAt(i));
-				if (player != null)
-				{
-					teamPlayers.add(player);
-				}
-			}
+                teamPlayers.add(player);
+            }
 		}
 		
 		teamKits.clear();

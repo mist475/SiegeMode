@@ -18,7 +18,7 @@ import siege.common.kit.KitDatabase;
 
 public class SiegePlayerData
 {
-	private Siege theSiege;
+	private final Siege theSiege;
 
 	private BackupSpawnPoint backupSpawnPoint;
 	private UUID currentKit;
@@ -32,10 +32,8 @@ public class SiegePlayerData
 	private int longestKillstreak;
 	private UUID lastKilledBy;
 	private UUID lastKill;
-	private Map<String, Integer> killedByTable = new HashMap();
-	private Map<String, Integer> killTable = new HashMap();
-	
-	private ScoreObjective lastSentSiegeObjective = null;
+	private final Map<String, Integer> killedByTable = new HashMap<>();
+	private final Map<String, Integer> killTable = new HashMap<>();
 
 	public SiegePlayerData(Siege siege)
 	{
@@ -247,7 +245,7 @@ public class SiegePlayerData
 		lastKill = entityplayer.getUniqueID();
 		
 		String name = entityplayer.getCommandSenderName();
-		int tableCount = killTable.containsKey(name) ? killTable.get(name) : 0;
+		int tableCount = killTable.getOrDefault(name, 0);
 		tableCount++;
 		killTable.put(name, tableCount);
 		
@@ -274,7 +272,7 @@ public class SiegePlayerData
 			lastKilledBy = entityplayer.getUniqueID();
 			
 			String name = entityplayer.getCommandSenderName();
-			int tableCount = killedByTable.containsKey(name) ? killedByTable.get(name) : 0;
+			int tableCount = killedByTable.getOrDefault(name, 0);
 			tableCount++;
 			killedByTable.put(name, tableCount);
 		}
@@ -390,16 +388,15 @@ public class SiegePlayerData
 		if (clearedLimitedKit)
 		{
 			clearedLimitedKit = false;
-			theSiege.warnPlayer(entityplayer, "Your limited kit was deselected on logout so others may use it!");
-			theSiege.warnPlayer(entityplayer, "Switching to random kit selection after death");
+			Siege.warnPlayer(entityplayer, "Your limited kit was deselected on logout so others may use it!");
+			Siege.warnPlayer(entityplayer, "Switching to random kit selection after death");
 			theSiege.markDirty();
 		}
 	}
 	
 	public void onLogout(EntityPlayerMP entityplayer)
 	{
-		lastSentSiegeObjective = null;
-		
+
 		SiegeTeam team = theSiege.getPlayerTeam(entityplayer);
 		if (team != null)
 		{
@@ -443,7 +440,7 @@ public class SiegePlayerData
 			
 			// clever trick to control the ordering of the objectives: put actual scores in the 'playernames', and put the desired order in the 'scores'!
 			
-			List<Score> allSiegeStats = new ArrayList();
+			List<Score> allSiegeStats = new ArrayList<>();
 			allSiegeStats.add(new Score(scoreboard, siegeObjective, timeRemaining));
 			allSiegeStats.add(null);
 			allSiegeStats.add(new Score(scoreboard, siegeObjective, "Team: " + team.getTeamName()));
@@ -467,12 +464,12 @@ public class SiegePlayerData
 				if (score == null)
 				{
 					// create a unique gap string, based on how many gaps we've already had
-					String gapString = "";
+					StringBuilder gapString = new StringBuilder();
 					for (int l = 0; l <= gaps; l++)
 					{
-						gapString += "-";
+						gapString.append("-");
 					}
-					score = new Score(scoreboard, siegeObjective, gapString);
+					score = new Score(scoreboard, siegeObjective, gapString.toString());
 					gaps++;
 				}
 				
@@ -481,7 +478,7 @@ public class SiegePlayerData
 				int maxLength = 16;
 				if (scoreName.length() > maxLength)
 				{
-					scoreName = scoreName.substring(0, Math.min(scoreName.length(), maxLength));
+					scoreName = scoreName.substring(0, maxLength);
 				}
 				score = new Score(score.getScoreScoreboard(), score.func_96645_d(), scoreName);
 				
@@ -506,7 +503,6 @@ public class SiegePlayerData
 		{
 			Packet pktDisplay = new S3DPacketDisplayScoreboard(1, siegeObjective);
 			entityplayer.playerNetServerHandler.sendPacket(pktDisplay);
-			lastSentSiegeObjective = siegeObjective;
 		}
 	}
 }

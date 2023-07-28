@@ -41,14 +41,6 @@ public class EventHandler
 		{
 			return;
 		}
-		
-		if (event.phase == Phase.START)
-		{
-			if (world == DimensionManager.getWorld(0))
-			{
-				// loading?
-			}
-		}
 			
 		if (event.phase == Phase.END)
 		{
@@ -132,9 +124,8 @@ public class EventHandler
 		EntityLivingBase entity = event.entityLiving;
 		DamageSource source = event.source;
 		
-		if (entity instanceof EntityPlayer)
+		if (entity instanceof EntityPlayer entityplayer)
 		{
-			EntityPlayer entityplayer = (EntityPlayer)entity;
 			if (!entityplayer.worldObj.isRemote && !entityplayer.capabilities.isCreativeMode)
 			{
 				Siege activeSiege = SiegeDatabase.getActiveSiegeForPlayer(entityplayer);
@@ -143,15 +134,12 @@ public class EventHandler
 					SiegeTeam team = activeSiege.getPlayerTeam(entityplayer);
 					
 					Entity attacker = source.getEntity();
-					if (attacker instanceof EntityPlayer)
+					if (attacker instanceof EntityPlayer attackingPlayer)
 					{
-						EntityPlayer attackingPlayer = (EntityPlayer)attacker;
-						
 						if (attackingPlayer != entityplayer && team.containsPlayer(attackingPlayer) && !activeSiege.getFriendlyFire())
 						{
 							event.setCanceled(true);
-							return;
-						}
+                        }
 					}
 				}
 			}
@@ -164,9 +152,8 @@ public class EventHandler
 		EntityLivingBase entity = event.entityLiving;
 		DamageSource source = event.source;
 		
-		if (entity instanceof EntityPlayer)
+		if (entity instanceof EntityPlayer entityplayer)
 		{
-			EntityPlayer entityplayer = (EntityPlayer)entity;
 			if (!entityplayer.worldObj.isRemote)
 			{
 				Siege activeSiege = SiegeDatabase.getActiveSiegeForPlayer(entityplayer);
@@ -201,10 +188,9 @@ public class EventHandler
 			Siege activeSiege = SiegeDatabase.getActiveSiegeForPlayer(entityplayer);
 			if (activeSiege != null && !entityplayer.capabilities.isCreativeMode)
 			{
-				activeSiege.warnPlayer(entityplayer, "You cannot drop items during a siege");
+				Siege.warnPlayer(entityplayer, "You cannot drop items during a siege");
 				event.setCanceled(true);
-				return;
-			}
+            }
 		}
 	}
 	
@@ -235,18 +221,16 @@ public class EventHandler
 		int i = event.x;
 		int j = event.y;
 		int k = event.z;
-		int side = event.face;
 
 		Action action = event.action;
 
 		Item item = itemstack == null ? null : itemstack.getItem();
-		boolean isPlacingItem = item != null && (item instanceof ItemBlock || item instanceof ItemReed || item instanceof ItemBed || item instanceof ItemDoor);
+		boolean isPlacingItem = (item instanceof ItemBlock || item instanceof ItemReed || item instanceof ItemBed || item instanceof ItemDoor);
 		if ((action == Action.RIGHT_CLICK_BLOCK && isPlacingItem) || action == Action.LEFT_CLICK_BLOCK)
 		{
 			Block block = world.getBlock(i, j, k);
-			int meta = world.getBlockMetadata(i, j, k);
 			
-			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, world, i, j, k))
+			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, i, j, k))
 			{
 				SiegeTerrainProtection.warnPlayer(entityplayer, "You cannot break or place blocks during the siege");
 				event.setCanceled(true);
@@ -267,7 +251,7 @@ public class EventHandler
 			TileEntity te = world.getTileEntity(i, j, k);
 			if (te instanceof IInventory)
 			{
-				if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, world, i, j, k))
+				if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, i, j, k))
 				{
 					SiegeTerrainProtection.warnPlayer(entityplayer, "You cannot interact with containers during the siege");
 					event.setCanceled(true);
@@ -280,18 +264,16 @@ public class EventHandler
 	public void onBlockBreak(BlockEvent.BreakEvent event)
 	{
 		EntityPlayer entityplayer = event.getPlayer();
-		Block block = event.block;
 		World world = event.world;
 		int i = event.x;
 		int j = event.y;
 		int k = event.z;
 		
-		if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, world, i, j, k))
+		if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, i, j, k))
 		{
 			SiegeTerrainProtection.warnPlayer(entityplayer, "You cannot break or place blocks during the siege");
 			event.setCanceled(true);
-			return;
-		}
+        }
 	}
 	
 	@SubscribeEvent
@@ -307,12 +289,11 @@ public class EventHandler
 			int j = target.blockY;
 			int k = target.blockZ;
 			
-			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, world, i, j, k))
+			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, i, j, k))
 			{
 				SiegeTerrainProtection.warnPlayer(entityplayer, "You cannot break or place blocks during the siege");
 				event.setCanceled(true);
-				return;
-			}
+            }
 		}
 	}
 	
@@ -329,12 +310,11 @@ public class EventHandler
 			int j = MathHelper.floor_double(entity.posY);
 			int k = MathHelper.floor_double(entity.posZ);
 			
-			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, world, i, j, k))
+			if (!world.isRemote && SiegeTerrainProtection.isProtected(entityplayer, i, j, k))
 			{
 				SiegeTerrainProtection.warnPlayer(entityplayer, "You cannot destroy non-living entities during the siege");
 				event.setCanceled(true);
-				return;
-			}
+            }
 		}
 	}
 }

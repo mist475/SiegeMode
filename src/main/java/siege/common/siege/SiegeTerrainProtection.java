@@ -1,16 +1,18 @@
 package siege.common.siege;
 
-import java.util.*;
-
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SiegeTerrainProtection
 {
 	private static final int MESSAGE_INTERVAL_SECONDS = 2;
-	private static final Map<UUID, Long> lastPlayerMsgTimes = new HashMap();
+	private static final Map<UUID, Long> lastPlayerMsgTimes = new HashMap<>();
 	
-	public static boolean isProtected(EntityPlayer entityplayer, World world, int i, int j, int k)
+	public static boolean isProtected(EntityPlayer entityplayer, int i, int j, int k)
 	{
 		if (!entityplayer.capabilities.isCreativeMode)
 		{

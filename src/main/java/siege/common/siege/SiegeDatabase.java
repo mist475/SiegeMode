@@ -1,6 +1,8 @@
 package siege.common.siege;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,8 +16,8 @@ import cpw.mods.fml.common.FMLLog;
 
 public class SiegeDatabase
 {
-	private static Map<UUID, Siege> siegeMap = new HashMap();
-	private static Map<String, UUID> siegeNameMap = new HashMap();
+	private static final Map<UUID, Siege> siegeMap = new HashMap<>();
+	private static final Map<String, UUID> siegeNameMap = new HashMap<>();
 
 	public static Siege getSiege(String name)
 	{
@@ -34,12 +36,12 @@ public class SiegeDatabase
 	
 	public static List<String> getAllSiegeNames()
 	{
-		return new ArrayList(siegeNameMap.keySet());
+		return new ArrayList<>(siegeNameMap.keySet());
 	}
 	
 	public static List<String> listActiveSiegeNames()
 	{
-		List<String> names = new ArrayList();
+		List<String> names = new ArrayList<>();
 		for (Siege siege : siegeMap.values())
 		{
 			if (siege.isActive())
@@ -52,7 +54,7 @@ public class SiegeDatabase
 	
 	public static List<String> listInactiveSiegeNames()
 	{
-		List<String> names = new ArrayList();
+		List<String> names = new ArrayList<>();
 		for (Siege siege : siegeMap.values())
 		{
 			if (!siege.isActive())
@@ -124,7 +126,7 @@ public class SiegeDatabase
 	
 	public static List<Siege> getActiveSiegesAtPosition(double x, double y, double z)
 	{
-		List<Siege> siegesHere = new ArrayList();
+		List<Siege> siegesHere = new ArrayList<>();
 		for (Siege siege : siegeMap.values())
 		{
 			if (siege.isActive() && siege.isLocationInSiege(x, y, z))
@@ -137,7 +139,7 @@ public class SiegeDatabase
 	
 	public static List<Siege> getInactiveSiegesAtPosition(double x, double y, double z)
 	{
-		List<Siege> siegesHere = new ArrayList();
+		List<Siege> siegesHere = new ArrayList<>();
 		for (Siege siege : siegeMap.values())
 		{
 			if (!siege.isActive() && !siege.isDeleted() && siege.isLocationInSiege(x, y, z))
@@ -153,7 +155,12 @@ public class SiegeDatabase
 		File dir = new File(SiegeMode.getSiegeRootDirectory(), "sieges");
 		if (!dir.exists())
 		{
-			dir.mkdirs();
+			try {
+				Files.createDirectories(dir.toPath());
+			}
+			catch (IOException e) {
+				FMLLog.info("SiegeMode: Failed to create sieges directory");
+			}
 		}
 		return dir;
 	}
@@ -207,18 +214,20 @@ public class SiegeDatabase
 		{
 			File siegeDir = getOrCreateSiegeDirectory();
 			File[] siegeFiles = siegeDir.listFiles();
-			int i = 0;
-			for (File dat : siegeFiles)
-			{
-				Siege siege = loadSiegeFromFile(dat);
-				if (siege != null)
+			if (siegeFiles != null) {
+				int i = 0;
+				for (File dat : siegeFiles)
 				{
-					siegeMap.put(siege.getSiegeID(), siege);
-					putSiegeNameAndID(siege);
-					i++;
+					Siege siege = loadSiegeFromFile(dat);
+					if (siege != null)
+					{
+						siegeMap.put(siege.getSiegeID(), siege);
+						putSiegeNameAndID(siege);
+						i++;
+					}
 				}
+				FMLLog.info("SiegeMode: Loaded %d sieges", i);
 			}
-			FMLLog.info("SiegeMode: Loaded %d sieges", i);
 		}
 		catch (Exception e)
 		{

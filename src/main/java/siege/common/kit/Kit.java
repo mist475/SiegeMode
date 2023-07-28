@@ -1,7 +1,5 @@
 package siege.common.kit;
 
-import java.util.*;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
@@ -9,7 +7,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.common.util.Constants;
-import siege.common.SiegeMode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class Kit
 {
@@ -19,10 +21,10 @@ public class Kit
 	private UUID kitID;
 	private String kitName;
 	
-	private ItemStack[] armorItems = new ItemStack[4];
+	private final ItemStack[] armorItems = new ItemStack[4];
 	private ItemStack heldItem;
-	private List<ItemStack> otherItems = new ArrayList();
-	private List<PotionEffect> potionEffects = new ArrayList();
+	private final List<ItemStack> otherItems = new ArrayList<>();
+	private final List<PotionEffect> potionEffects = new ArrayList<>();
 	
 	public Kit()
 	{
@@ -103,9 +105,8 @@ public class Kit
 		}
 		
 		potionEffects.clear();
-		for (Object obj : entityplayer.getActivePotionEffects())
+		for (PotionEffect potion : entityplayer.getActivePotionEffects())
 		{
-			PotionEffect potion = (PotionEffect)obj;
 			PotionEffect copy = new PotionEffect(potion);
 			potionEffects.add(copy);
 		}

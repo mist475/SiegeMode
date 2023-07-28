@@ -1,19 +1,19 @@
 package siege.common.kit;
 
-import java.io.File;
-import java.util.*;
-
-import net.minecraft.nbt.NBTTagCompound;
-
-import org.apache.commons.lang3.StringUtils;
-
-import siege.common.SiegeMode;
 import cpw.mods.fml.common.FMLLog;
+import net.minecraft.nbt.NBTTagCompound;
+import org.apache.commons.lang3.StringUtils;
+import siege.common.SiegeMode;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
 
 public class KitDatabase
 {
-	private static Map<UUID, Kit> kitMap = new HashMap();
-	private static Map<String, UUID> kitNameMap = new HashMap();
+	private static final Map<UUID, Kit> kitMap = new HashMap<>();
+	private static final Map<String, UUID> kitNameMap = new HashMap<>();
 	
 	private static final String randomKitID = "random";
 	
@@ -39,7 +39,7 @@ public class KitDatabase
 	
 	public static List<String> getAllKitNames()
 	{
-		return new ArrayList(kitNameMap.keySet());
+		return new ArrayList<>(kitNameMap.keySet());
 	}
 	
 	public static boolean validKitName(String name)
@@ -88,7 +88,12 @@ public class KitDatabase
 		File dir = new File(SiegeMode.getSiegeRootDirectory(), "kits");
 		if (!dir.exists())
 		{
-			dir.mkdirs();
+			try {
+				Files.createDirectories(dir.toPath());
+			}
+			catch (IOException e) {
+				FMLLog.info("SiegeMode: Failed to create kits directory");
+			}
 		}
 		return dir;
 	}
@@ -142,18 +147,20 @@ public class KitDatabase
 		{
 			File kitDir = getOrCreateKitDirectory();
 			File[] kitFiles = kitDir.listFiles();
-			int i = 0;
-			for (File dat : kitFiles)
-			{
-				Kit kit = loadKitFromFile(dat);
-				if (kit != null)
+			if (kitFiles != null) {
+				int i = 0;
+				for (File dat : kitFiles)
 				{
-					kitMap.put(kit.getKitID(), kit);
-					putKitNameAndID(kit);
-					i++;
+					Kit kit = loadKitFromFile(dat);
+					if (kit != null)
+					{
+						kitMap.put(kit.getKitID(), kit);
+						putKitNameAndID(kit);
+						i++;
+					}
 				}
+				FMLLog.info("SiegeMode: Loaded %d kits", i);
 			}
-			FMLLog.info("SiegeMode: Loaded %d kits", i);
 		}
 		catch (Exception e)
 		{
