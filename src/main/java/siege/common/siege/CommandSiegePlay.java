@@ -2,7 +2,10 @@ package siege.common.siege;
 
 import java.util.List;
 
-import net.minecraft.command.*;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import siege.common.kit.Kit;
 import siege.common.kit.KitDatabase;

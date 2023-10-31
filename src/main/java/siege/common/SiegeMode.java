@@ -1,17 +1,23 @@
 package siege.common;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
-import siege.common.kit.*;
-import siege.common.siege.*;
+import siege.common.kit.CommandKit;
+import siege.common.kit.KitDatabase;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import siege.common.siege.CommandSiegePlay;
+import siege.common.siege.CommandSiegeSetup;
+import siege.common.siege.SiegeDatabase;
 
 @Mod(modid = "siegemode", version = "1.2", acceptableRemoteVersions = "*")
 public class SiegeMode
