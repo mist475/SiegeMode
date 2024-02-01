@@ -131,7 +131,7 @@ public class Kit
 	}
 
 	public static void clearContainer(Container container) {
-		container.inventoryItemStacks.clear();
+		container.inventorySlots.forEach(slot -> slot.putStack(null));
 		container.detectAndSendChanges();
 	}
 	
